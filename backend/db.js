@@ -6,15 +6,19 @@ const mongoDB = async () => {
         console.log('Connected to MongoDB');
 
         // Fetching collection and data asynchronously
-        const fetchedData = mongoose.connection.db.collection("food_items");
-        const data = await fetchedData.find({}).toArray();
-
-        if (data.length === 0) {
-            console.log("No documents found in 'food_items' collection.");
-        } else {
-            global.food_items = data;
-            
-        }
+        const fetchedData = await mongoose.connection.db.collection("food_items");
+        fetchedData.find({}).toArray(async function(err, data){
+            const foodCategory = await mongoose.connection.db.collection("foodCategory");
+            foodCategory.find({}).toArray(async function(err, catData){
+                if (err) console.log(err);
+                else {
+                    global.food_items = data;
+                    global.foodCategory = catData;
+                }
+            })
+            // global.food_items = data;
+        
+        })
 
     } catch (err) {
         console.error('Error connecting to MongoDB:', err);
